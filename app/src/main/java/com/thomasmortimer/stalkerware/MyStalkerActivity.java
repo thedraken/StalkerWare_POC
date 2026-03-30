@@ -40,11 +40,32 @@ public class MyStalkerActivity extends AppCompatActivity {
                 String androidVersion = intent.getStringExtra(MonitoringService.ANDROID_VERSION);
                 String model = intent.getStringExtra(MonitoringService.MODEL);
                 String dateTimeAsString = intent.getStringExtra(MonitoringService.CURRENT_TIME);
+                boolean screenOn = intent.getBooleanExtra(MonitoringService.SCREEN_ON, false);
+                boolean screenOff = intent.getBooleanExtra(MonitoringService.SCREEN_OFF, false);
+                boolean deviceBooted = intent.getBooleanExtra(MonitoringService.DEVICE_BOOTED, false);
+                String internetType = intent.getStringExtra(MonitoringService.INTERNET_TYPE);
+                String deviceManufacturer = intent.getStringExtra(MonitoringService.DEVICE_MANUFACTURER);
+                int batteryLevel = intent.getIntExtra(MonitoringService.BATTERY_LEVEL, 0);
 
-                StringBuilder stringBuilder = new StringBuilder("Monitor{\nModel:")
-                        .append(model).append(",\nVersion:").append(androidVersion)
-                        .append(",\nInternet?:").append(isInternetAvailable)
-                        .append(",\nDateTime:").append(dateTimeAsString).append("\n}");
+                StringBuilder stringBuilder =
+                        new StringBuilder("Monitor{\n  Model:").append(model)
+                                .append(",\n  Version:").append(androidVersion)
+                                .append(",\n  Internet?:").append(isInternetAvailable)
+                                .append(",\n  Internet type:").append(internetType)
+                                .append(",\n  Device Manu:").append(deviceManufacturer)
+                                .append(",\n  Battery:").append(batteryLevel)
+                                .append(",\n");
+                if (screenOff) {
+                    stringBuilder.append("  Screen off:true,\n");
+                }
+                if (screenOn) {
+                    stringBuilder.append("  Screen on:true,\n");
+                }
+                if (deviceBooted) {
+                    stringBuilder.append("  Device booted:true,\n");
+                }
+                stringBuilder
+                        .append("  DateTime:").append(dateTimeAsString).append("\n}\n");
                 textView.append(stringBuilder);
             }
         }
@@ -55,27 +76,15 @@ public class MyStalkerActivity extends AppCompatActivity {
     private void configureButtons() {
         Button stalkerButton = findViewById(R.id.startStalkingButton);
         stalkerButton.setOnClickListener(clickListener -> {
-            //if (checkPermissionAccessAndRequest(new Permission[]{Permission.FOREGROUND_SERVICE_DATA_SYNC})) {
-            Log.d(APP_LOG_NAME, "Starting stalking service");
+            Log.d(APP_LOG_NAME, "Click button to start stalking service");
             Intent intent = new Intent(this, MonitoringService.class);
             ContextCompat.startForegroundService(this, intent);
-            Log.d(APP_LOG_NAME, "Service started");
-            /*} else {
-                Log.d(APP_LOG_NAME, "Missing data sync permission, try again later");
-                getLogTextView().append("Missing data sync permission, try again later\n");
-
-            }*/
         });
 
         Button requestPermissionsButton = findViewById(R.id.requestPermissionsButton);
         requestPermissionsButton.setOnClickListener(clickListener -> {
             Log.d(APP_LOG_NAME, "Checking permissions");
             checkPermissionAccessAndRequest(Permission.values());
-        });
-
-        Button checkNextRunTimeButton = findViewById(R.id.checkWorkersInfoButton);
-        checkNextRunTimeButton.setOnClickListener(clickListener -> {
-            //TODO
         });
     }
 
@@ -139,8 +148,19 @@ public class MyStalkerActivity extends AppCompatActivity {
         });
 
         IntentFilter filter = new IntentFilter(MonitoringService.MONITOR_UPDATE);
-        registerReceiver(textViewUpdateBroadcastReceiver, filter, RECEIVER_NOT_EXPORTED);
+        ContextCompat.registerReceiver(
+                this,
+                textViewUpdateBroadcastReceiver,
+                filter,
+                ContextCompat.RECEIVER_NOT_EXPORTED
+        );
 
         configureButtons();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(textViewUpdateBroadcastReceiver);
     }
 }

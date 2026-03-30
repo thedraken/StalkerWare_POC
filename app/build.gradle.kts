@@ -46,4 +46,6 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     implementation(libs.joda.time)
     implementation(libs.guava)
+    implementation(libs.room.runtime)
+    annotationProcessor(libs.room.compiler)
 }
