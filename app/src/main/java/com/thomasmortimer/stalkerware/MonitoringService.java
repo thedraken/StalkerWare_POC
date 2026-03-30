@@ -7,25 +7,15 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.Operation;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
-import androidx.work.WorkRequest;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
-import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class MonitoringService extends Service {
 
-    public static final String MY_WORKER_ID = "THOMAS_MORTIMER_WORKER";
     public static final String MY_WORKER_TAG = "THOMAS_MORTIMER_BACKGROUND_WORKER_TAG";
 
     @Nullable

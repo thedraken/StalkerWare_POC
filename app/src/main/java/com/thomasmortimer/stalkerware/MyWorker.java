@@ -5,26 +5,20 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.os.Build;
-import android.util.Log;
 
 import androidx.work.Data;
-import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ListenableWorker;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.WorkerParameters;
 
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.joda.time.DateTime;
 import org.jspecify.annotations.NonNull;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import com.google.common.util.concurrent.Futures;
 
 public class MyWorker extends ListenableWorker {
 

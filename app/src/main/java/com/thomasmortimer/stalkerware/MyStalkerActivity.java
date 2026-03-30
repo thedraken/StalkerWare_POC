@@ -24,11 +24,9 @@ import androidx.work.Data;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.IntStream;
 
@@ -122,7 +120,7 @@ public class MyStalkerActivity extends AppCompatActivity {
         });
     }
 
-    private boolean checkPermissionAccessAndRequest(Permission[] permissionsToProcess) {
+    private void checkPermissionAccessAndRequest(Permission[] permissionsToProcess) {
         Set<String> permissionsToRequest = new HashSet<>();
         StringBuilder permissionsAlreadyGranted = new StringBuilder();
         for (Permission permission : permissionsToProcess) {
@@ -147,7 +145,6 @@ public class MyStalkerActivity extends AppCompatActivity {
             TextView logTextView = getLogTextView();
             logTextView.append(permissionsAlreadyGranted);
         }
-        return permissionsToRequest.isEmpty();
     }
 
     @Override
@@ -168,7 +165,6 @@ public class MyStalkerActivity extends AppCompatActivity {
     }
 
     private TextView getLogTextView() {
-        TextView logTextView = findViewById(R.id.logsTextView);
-        return logTextView;
+        return findViewById(R.id.logsTextView);
     }
 }
