@@ -7,20 +7,17 @@ import android.net.NetworkCapabilities;
 import android.os.Build;
 
 import androidx.work.Data;
-import androidx.work.ListenableWorker;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
+import androidx.work.Worker;
 import androidx.work.WorkerParameters;
-
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 
 import org.joda.time.DateTime;
 import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.TimeUnit;
 
-public class MyWorker extends ListenableWorker {
+public class MyWorker extends Worker {
 
     public static final String CURRENT_TIME = "Current_Time";
     public static final String MODEL = "Model";
@@ -36,7 +33,7 @@ public class MyWorker extends ListenableWorker {
     }
 
     @Override
-    public @NonNull ListenableFuture<Result> startWork() {
+    public @NonNull Result doWork() {
         DateTime currentTime = new DateTime();
         String model = Build.MODEL;
         String androidVersion = Build.VERSION.RELEASE;
@@ -77,13 +74,13 @@ public class MyWorker extends ListenableWorker {
         return false;
     }
 
-    private ListenableFuture<Result> getResults(DateTime currentTime, String model, String androidVersion, boolean internetAvailable) {
+    private Result getResults(DateTime currentTime, String model, String androidVersion, boolean internetAvailable) {
         Data outputData = new Data.Builder()
                 .putString(CURRENT_TIME, currentTime.toString())
                 .putString(MODEL, model)
                 .putString(ANDROID_VERSION, androidVersion)
                 .putBoolean(INTERNET_AVAILABLE, internetAvailable)
                 .build();
-        return Futures.immediateFuture(Result.success(outputData));
+        return Result.success(outputData);
     }
 }
