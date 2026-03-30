@@ -2,7 +2,10 @@ package com.thomasmortimer.stalkerware;
 
 import static android.widget.Toast.LENGTH_LONG;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,24 +31,26 @@ public class MyStalkerActivity extends AppCompatActivity {
     public static final String APP_LOG_NAME = "Thomas_Mortimer_App";
     public static final int MY_REQUEST_CODE = 31052604;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_my_stalker);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+    private final BroadcastReceiver textViewUpdateBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (MonitoringService.MONITOR_UPDATE.equals(intent.getAction())) {
+                TextView textView = getLogTextView();
+                boolean isInternetAvailable = intent.getBooleanExtra(MonitoringService.INTERNET_AVAILABLE, false);
+                String androidVersion = intent.getStringExtra(MonitoringService.ANDROID_VERSION);
+                String model = intent.getStringExtra(MonitoringService.MODEL);
+                String dateTimeAsString = intent.getStringExtra(MonitoringService.CURRENT_TIME);
 
-        addTextViewListener();
-        configureButtons();
-    }
+                StringBuilder stringBuilder = new StringBuilder("Monitor{\nModel:")
+                        .append(model).append(",\nVersion:").append(androidVersion)
+                        .append(",\nInternet?:").append(isInternetAvailable)
+                        .append(",\nDateTime:").append(dateTimeAsString).append("\n}");
+                textView.append(stringBuilder);
+            }
+        }
+    };
 
-    private void addTextViewListener() {
-        //TODO
-    }
+
 
     private void configureButtons() {
         Button stalkerButton = findViewById(R.id.startStalkingButton);
@@ -120,5 +125,22 @@ public class MyStalkerActivity extends AppCompatActivity {
 
     private TextView getLogTextView() {
         return findViewById(R.id.logsTextView);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
+        setContentView(R.layout.activity_my_stalker);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+
+        IntentFilter filter = new IntentFilter(MonitoringService.MONITOR_UPDATE);
+        registerReceiver(textViewUpdateBroadcastReceiver, filter, RECEIVER_NOT_EXPORTED);
+
+        configureButtons();
     }
 }
