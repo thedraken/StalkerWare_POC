@@ -51,32 +51,26 @@ public class MyStalkerActivity extends AppCompatActivity {
     }
 
     private void addTextViewListener() {
-        TextView logTextView = getLogTextView();
-
         MonitoringServiceIDViewModel viewModel = new ViewModelProvider(this).get(MonitoringServiceIDViewModel.class);
         viewModel.getWorkIdLiveData().observe(this, workId -> {
             if (workId != null) {
-                try {
-                    WorkInfo workInfo = WorkManager.getInstance(this)
-                            .getWorkInfoById(workId).get();
-                    if (workInfo == null) {
-                        Log.d(APP_LOG_NAME, "Work info null");
-                    } else {
-                        Log.d(APP_LOG_NAME, "WorkInfo state: " + workInfo.getState());
-                        if (workInfo.getState() == WorkInfo.State.SUCCEEDED) {
-                            Data data = workInfo.getOutputData();
-                            logTextView.append(String.format("%s: %s\n", MyWorker.CURRENT_TIME, data.getString(MyWorker.CURRENT_TIME)));
-                            logTextView.append(String.format("%s: %s\n", MyWorker.MODEL, data.getString(MyWorker.MODEL)));
-                            logTextView.append(String.format("%s: %s\n", MyWorker.ANDROID_VERSION, data.getString(MyWorker.ANDROID_VERSION)));
-                            logTextView.append(String.format("%s: %s\n", MyWorker.INTERNET_AVAILABLE, data.getString(MyWorker.INTERNET_AVAILABLE)));
-                        }
-                    }
-                } catch (ExecutionException | InterruptedException e) {
-                    Log.e(APP_LOG_NAME, "Error getting work info for job", e);
-                }
+                WorkManager.getInstance(this)
+                        .getWorkInfoByIdLiveData(workId)
+                        .observe(this, workInfo -> {
+                            if (workInfo != null) {
+                                Log.d(APP_LOG_NAME, "WorkInfo state: " + workInfo.getState());
+                                if (workInfo.getState() == WorkInfo.State.SUCCEEDED) {
+                                    Data data = workInfo.getOutputData();
+                                    TextView logTextView = getLogTextView();
+                                    logTextView.append(MyWorker.CURRENT_TIME + ": " + data.getString(MyWorker.CURRENT_TIME) + "\n");
+                                    logTextView.append(MyWorker.MODEL + ": " + data.getString(MyWorker.MODEL) + "\n");
+                                    logTextView.append(MyWorker.ANDROID_VERSION + ": " + data.getString(MyWorker.ANDROID_VERSION) + "\n");
+                                    logTextView.append(MyWorker.INTERNET_AVAILABLE + ": " + data.getString(MyWorker.INTERNET_AVAILABLE) + "\n");
+                                }
+                            }
+                        });
             }
         });
-
     }
 
     private void configureButtons() {
@@ -108,7 +102,7 @@ public class MyStalkerActivity extends AppCompatActivity {
                     WorkInfo.State state = workInfo.getState();
                     if (state == WorkInfo.State.ENQUEUED) {
                         long nextScheduled = workInfo.getNextScheduleTimeMillis();
-                        long nextScheduledInSeconds = nextScheduled * 1000;
+                        long nextScheduledInSeconds = nextScheduled / 1000;
                         TextView logTextView = getLogTextView();
                         logTextView.append("Next run of job is in " + nextScheduledInSeconds + " seconds\n");
                     }
