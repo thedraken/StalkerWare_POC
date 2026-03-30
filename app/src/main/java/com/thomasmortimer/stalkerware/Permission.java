@@ -14,8 +14,9 @@ public enum Permission {
     RECEIVE_BOOT_COMPLETED("android.permission.RECEIVE_BOOT_COMPLETED"),
     INTERNET("android.permission.INTERNET"),
     ACCESS_NETWORK_STATE("android.permission.ACCESS_NETWORK_STATE"),
-    READ_MEDIA_VISUAL_USER_SELECTED("android.permission.READ_MEDIA_VISUAL_USER_SELECTED")//,
-    //FOREGROUND_SERVICE_DATA_SYNC("android.permission.FOREGROUND_SERVICE_DATA_SYNC")
+    READ_MEDIA_VISUAL_USER_SELECTED("android.permission.READ_MEDIA_VISUAL_USER_SELECTED"),
+    FOREGROUND_SERVICE_DATA_SYNC("android.permission.FOREGROUND_SERVICE_DATA_SYNC"),
+    POST_NOTIFICATIONS("android.permission.POST_NOTIFICATIONS")
     ;
 
     private final String permissionAttribute;

@@ -1,7 +1,6 @@
 package com.thomasmortimer.stalkerware;
 
 import static android.widget.Toast.LENGTH_LONG;
-import static android.widget.Toast.LENGTH_SHORT;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -19,15 +18,9 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.work.Data;
-import androidx.work.WorkInfo;
-import androidx.work.WorkManager;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.IntStream;
 
 public class MyStalkerActivity extends AppCompatActivity {
@@ -51,36 +44,17 @@ public class MyStalkerActivity extends AppCompatActivity {
     }
 
     private void addTextViewListener() {
-        MonitoringServiceIDViewModel viewModel = new ViewModelProvider(this).get(MonitoringServiceIDViewModel.class);
-        viewModel.getWorkIdLiveData().observe(this, workId -> {
-            if (workId != null) {
-                WorkManager.getInstance(this)
-                        .getWorkInfoByIdLiveData(workId)
-                        .observe(this, workInfo -> {
-                            if (workInfo != null) {
-                                Log.d(APP_LOG_NAME, "WorkInfo state: " + workInfo.getState());
-                                if (workInfo.getState() == WorkInfo.State.SUCCEEDED) {
-                                    Data data = workInfo.getOutputData();
-                                    TextView logTextView = getLogTextView();
-                                    logTextView.append(MyWorker.CURRENT_TIME + ": " + data.getString(MyWorker.CURRENT_TIME) + "\n");
-                                    logTextView.append(MyWorker.MODEL + ": " + data.getString(MyWorker.MODEL) + "\n");
-                                    logTextView.append(MyWorker.ANDROID_VERSION + ": " + data.getString(MyWorker.ANDROID_VERSION) + "\n");
-                                    logTextView.append(MyWorker.INTERNET_AVAILABLE + ": " + data.getString(MyWorker.INTERNET_AVAILABLE) + "\n");
-                                }
-                            }
-                        });
-            }
-        });
+        //TODO
     }
 
     private void configureButtons() {
         Button stalkerButton = findViewById(R.id.startStalkingButton);
         stalkerButton.setOnClickListener(clickListener -> {
             //if (checkPermissionAccessAndRequest(new Permission[]{Permission.FOREGROUND_SERVICE_DATA_SYNC})) {
-                Log.d(APP_LOG_NAME, "Starting stalking service");
-                Intent serviceIntent = new Intent(MyStalkerActivity.this, MonitoringService.class);
-                startService(serviceIntent);
-                Log.d(APP_LOG_NAME, "Service started");
+            Log.d(APP_LOG_NAME, "Starting stalking service");
+            Intent intent = new Intent(this, MonitoringService.class);
+            ContextCompat.startForegroundService(this, intent);
+            Log.d(APP_LOG_NAME, "Service started");
             /*} else {
                 Log.d(APP_LOG_NAME, "Missing data sync permission, try again later");
                 getLogTextView().append("Missing data sync permission, try again later\n");
@@ -95,22 +69,8 @@ public class MyStalkerActivity extends AppCompatActivity {
         });
 
         Button checkNextRunTimeButton = findViewById(R.id.checkWorkersInfoButton);
-        checkNextRunTimeButton.setOnClickListener(clickListener-> {
-            try {
-                List<WorkInfo> workInfos = WorkManager.getInstance(this).getWorkInfosByTag(MonitoringService.MY_WORKER_TAG).get();
-                workInfos.forEach(workInfo -> {
-                    WorkInfo.State state = workInfo.getState();
-                    if (state == WorkInfo.State.ENQUEUED) {
-                        long nextScheduled = workInfo.getNextScheduleTimeMillis();
-                        long nextScheduledInSeconds = nextScheduled / 1000;
-                        TextView logTextView = getLogTextView();
-                        logTextView.append("Next run of job is in " + nextScheduledInSeconds + " seconds\n");
-                    }
-                });
-            } catch (ExecutionException | InterruptedException e) {
-                Toast.makeText(this, "Error getting workers", LENGTH_SHORT).show();
-                Log.e(APP_LOG_NAME, "Error getting workers", e);
-            }
+        checkNextRunTimeButton.setOnClickListener(clickListener -> {
+            //TODO
         });
     }
 
